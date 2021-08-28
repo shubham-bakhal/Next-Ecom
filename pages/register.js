@@ -29,11 +29,7 @@ import {
     const { redirect } = router.query;
     const { state, dispatch } = useContext(Store);
     const { userInfo } = state;
-    useEffect(() => {
-      if (userInfo) {
-        router.push('/');
-      }
-    }, []);
+ 
   
     const classes = useStyles();
     const submitHandler = async ({ name, email, password, confirmPassword }) => {
@@ -55,6 +51,11 @@ import {
         enqueueSnackbar(getError(err), { variant: 'error' });
       }
     };
+    useEffect(() => {
+      if (userInfo) {
+        router.push('/');
+      }
+    }, []);
     return (
       <Layout title="Register">
         <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>

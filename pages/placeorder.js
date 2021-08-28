@@ -44,14 +44,7 @@ function PlaceOrder() {
   const taxPrice = round2(itemsPrice * 0.15);
   const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
 
-  useEffect(() => {
-    if (!paymentMethod) {
-      router.push('/payment');
-    }
-    if (cartItems.length === 0) {
-      router.push('/cart');
-    }
-  }, []);
+  
   const { closeSnackbar, enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const placeOrderHandler = async () => {
@@ -84,6 +77,14 @@ function PlaceOrder() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+  useEffect(() => {
+    if (!paymentMethod) {
+      router.push('/payment');
+    }
+    if (cartItems.length === 0) {
+      router.push('/cart');
+    }
+  }, []);
   return (
     <Layout title="Place Order">
       <CheckoutWizard activeStep={3}></CheckoutWizard>

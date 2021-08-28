@@ -27,16 +27,7 @@ export default function Shipping() {
     userInfo,
     cart: { shippingAddress },
   } = state;
-  useEffect(() => {
-    if (!userInfo) {
-      router.push('/login?redirect=/shipping');
-    }
-    setValue('fullName', shippingAddress.fullName);
-    setValue('address', shippingAddress.address);
-    setValue('city', shippingAddress.city);
-    setValue('postalCode', shippingAddress.postalCode);
-    setValue('country', shippingAddress.country);
-  }, []);
+ 
 
   const classes = useStyles();
   const submitHandler = ({ fullName, address, city, postalCode, country }) => {
@@ -56,6 +47,16 @@ export default function Shipping() {
     );
     router.push('/payment');
   };
+  useEffect(() => {
+    if (!userInfo) {
+      router.push('/login?redirect=/shipping');
+    }
+    setValue('fullName', shippingAddress.fullName);
+    setValue('address', shippingAddress.address);
+    setValue('city', shippingAddress.city);
+    setValue('postalCode', shippingAddress.postalCode);
+    setValue('country', shippingAddress.country);
+  }, []);
   return (
     <Layout title="Shipping Address">
       <CheckoutWizard activeStep={1} />

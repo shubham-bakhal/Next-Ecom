@@ -90,7 +90,7 @@ export default function ProductScreen(props) {
                   <Grid item xs={6}>
                     <Typography>Price</Typography>
                   </Grid>
-                  <Grid item item xs={6}>
+                  <Grid item xs={6}>
                     <Typography>${product.price}</Typography>
                   </Grid>
                 </Grid>
@@ -100,7 +100,7 @@ export default function ProductScreen(props) {
                   <Grid item xs={6}>
                     <Typography>Status</Typography>
                   </Grid>
-                  <Grid item item xs={6}>
+                  <Grid item xs={6}>
                     <Typography>
                       {product.countInStock > 0 ? 'In stock' : 'Out of stock'}
                     </Typography>

@@ -34,13 +34,6 @@ function Profile() {
   const classes = useStyles();
   const { userInfo } = state;
 
-  useEffect(() => {
-    if (!userInfo) {
-      return router.push('/login');
-    }
-    setValue('name', userInfo.name);
-    setValue('email', userInfo.email);
-  }, []);
   const submitHandler = async ({ name, email, password, confirmPassword }) => {
     closeSnackbar();
     if (password !== confirmPassword) {
@@ -65,6 +58,14 @@ function Profile() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+  
+  useEffect(() => {
+    if (!userInfo) {
+      return router.push('/login');
+    }
+    setValue('name', userInfo.name);
+    setValue('email', userInfo.email);
+  }, []);
   return (
     <Layout title="Profile">
       <Grid container spacing={1}>

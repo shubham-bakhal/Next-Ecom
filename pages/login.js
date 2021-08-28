@@ -29,11 +29,7 @@ export default function Login() {
   const { redirect } = router.query; // login?redirect=/shipping
   const { state, dispatch } = useContext(Store);
   const { userInfo } = state;
-  useEffect(() => {
-    if (userInfo) {
-      router.push('/');
-    }
-  }, []);
+ 
 
   const classes = useStyles();
   const submitHandler = async ({ email, password }) => {
@@ -50,6 +46,11 @@ export default function Login() {
       enqueueSnackbar(getError(err), { variant: 'error' });
     }
   };
+  useEffect(() => {
+    if (userInfo) {
+      router.push('/');
+    }
+  }, []);
   return (
     <Layout title="Login">
       <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
