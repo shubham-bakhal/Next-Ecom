@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 import dynamic from 'next/dynamic';
-import Layout from '../../components/Layout';
-import { Store } from '../../utils/Store';
+import Layout from '../../../components/Layout';
+import { Store } from '../../../utils/Store';
 import NextLink from 'next/link';
 import Image from 'next/image';
 import {
@@ -22,10 +22,9 @@ import {
 } from '@material-ui/core';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import useStyles from '../../utils/styles';
+import useStyles from '../../../utils/styles';
 import { useSnackbar } from 'notistack';
-import { getError } from '../../utils/error';
-import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import { getError } from '../../../utils/error';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -61,9 +60,19 @@ function reducer(state, action) {
   }
 }
 
-function Order({ params }) {
+import Stripe from 'stripe';
+import { parseCookies, setCookie } from 'nookies';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import CheckoutForm from '../../../components/CheckoutForm';
+
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
+
+function Order({ params, paymentIntent }) {
   const orderId = params.id;
-  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+
   const classes = useStyles();
   const router = useRouter();
   const { state } = useContext(Store);
@@ -90,7 +99,7 @@ function Order({ params }) {
     isDelivered,
     deliveredAt,
   } = order;
-
+  console.log(orderItems);
   useEffect(() => {
     if (!userInfo) {
       return router.push('/login');
@@ -119,67 +128,15 @@ function Order({ params }) {
       if (successDeliver) {
         dispatch({ type: 'DELIVER_RESET' });
       }
-    } else {
-      const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get('/api/keys/paypal', {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        });
-        paypalDispatch({
-          type: 'resetOptions',
-          value: {
-            'client-id': clientId,
-            currency: 'USD',
-          },
-        });
-        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
-      };
-      loadPaypalScript();
     }
   }, [order, successPay, successDeliver]);
   const { enqueueSnackbar } = useSnackbar();
-
-  function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: totalPrice },
-          },
-        ],
-      })
-      .then((orderID) => {
-        return orderID;
-      });
-  }
-  function onApprove(data, actions) {
-    return actions.order.capture().then(async function (details) {
-      try {
-        dispatch({ type: 'PAY_REQUEST' });
-        const { data } = await axios.put(
-          `/api/orders/${order._id}/pay`,
-          details,
-          {
-            headers: { authorization: `Bearer ${userInfo.token}` },
-          }
-        );
-        dispatch({ type: 'PAY_SUCCESS', payload: data });
-        enqueueSnackbar('Order is paid', { variant: 'success' });
-      } catch (err) {
-        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
-        enqueueSnackbar(getError(err), { variant: 'error' });
-      }
-    });
-  }
-
-  function onError(err) {
-    enqueueSnackbar(getError(err), { variant: 'error' });
-  }
 
   async function deliverOrderHandler() {
     try {
       dispatch({ type: 'DELIVER_REQUEST' });
       const { data } = await axios.put(
-        `/api/orders/${order._id}/deliver`,
+        `/api/orders/deliver?id=${order._id}`,
         {},
         {
           headers: { authorization: `Bearer ${userInfo.token}` },
@@ -213,22 +170,14 @@ function Order({ params }) {
                   </Typography>
                 </ListItem>
                 <ListItem>
-                  {shippingAddress.fullName}, {shippingAddress.address},{' '}
-                  {shippingAddress.city}, {shippingAddress.postalCode},{' '}
+                  {shippingAddress.fullName}, {shippingAddress.address},
+                  {shippingAddress.city}, {shippingAddress.postalCode},
                   {shippingAddress.country}
                   &nbsp;
-                  {shippingAddress.location && (
-                    <Link
-                      variant="button"
-                      target="_new"
-                      href={`https://maps.google.com?q=${shippingAddress.location.lat},${shippingAddress.location.lng}`}
-                    >
-                      Show On Map
-                    </Link>
-                  )}
+                  
                 </ListItem>
                 <ListItem>
-                  Status:{' '}
+                  Status:
                   {isDelivered
                     ? `delivered at ${deliveredAt}`
                     : 'not delivered'}
@@ -267,7 +216,7 @@ function Order({ params }) {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {orderItems.map((item) => (
+                        {orderItems.map(item => (
                           <TableRow key={item._id}>
                             <TableCell>
                               <NextLink href={`/product/${item.slug}`} passHref>
@@ -356,17 +305,16 @@ function Order({ params }) {
                 </ListItem>
                 {!isPaid && (
                   <ListItem>
-                    {isPending ? (
-                      <CircularProgress />
-                    ) : (
-                      <div className={classes.fullWidth}>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
-                        ></PayPalButtons>
-                      </div>
-                    )}
+                    <div className={classes.fullWidth}>
+                      <Elements stripe={stripePromise}>
+                        <CheckoutForm
+                          paymentIntent={paymentIntent}
+                          userInfo={userInfo}
+                          dispatch={dispatch}
+                          order={order}
+                        />
+                      </Elements>
+                    </div>
                   </ListItem>
                 )}
                 {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
@@ -391,11 +339,49 @@ function Order({ params }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
-  return { props: { params } };
+export async function getServerSideProps(ctx) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_HERE);
+  let paymentIntent;
+  const { params } = ctx;
+
+  const { paymentIntentId } = parseCookies(ctx);
+
+  //   if (paymentIntentId) {
+  //     paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+  //     return {
+  //       props: {
+  //         params,
+  //         paymentIntent,
+  //       },
+  //     };
+  //   }
+
+  const customer = await stripe.customers.create({
+    name: 'John Doe',
+    address: {
+      line1: '510 Townsend St',
+      postal_code: '98140',
+      city: 'San Francisco',
+      state: 'CA',
+      country: 'US',
+    },
+  });
+  paymentIntent = await stripe.paymentIntents.create({
+    amount: 500,
+    currency: 'usd',
+    description: '$5 for 5 credits',
+    customer: customer.id,
+  });
+
+  setCookie(ctx, 'paymentIntentId', paymentIntent.id);
+
+  return {
+    props: {
+      params,
+      paymentIntent,
+    },
+  };
 }
 
 export default dynamic(() => Promise.resolve(Order), { ssr: false });
-
-
-// http://localhost:3000/order/6129fd9dc8d845e0d0a2d6ef

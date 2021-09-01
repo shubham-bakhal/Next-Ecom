@@ -36,7 +36,7 @@ function PlaceOrder() {
     userInfo,
     cart: { cartItems, shippingAddress, paymentMethod },
   } = state;
-  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.456 => 123.46
+  const round2 = num => Math.round(num * 100 + Number.EPSILON) / 100; // 123.456 => 123.46
   const itemsPrice = round2(
     cartItems.reduce((a, c) => a + c.price * c.quantity, 0)
   );
@@ -44,7 +44,6 @@ function PlaceOrder() {
   const taxPrice = round2(itemsPrice * 0.15);
   const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
 
-  
   const { closeSnackbar, enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const placeOrderHandler = async () => {
@@ -58,7 +57,7 @@ function PlaceOrder() {
           shippingAddress,
           paymentMethod,
           itemsPrice,
-          shippingPrice, 
+          shippingPrice,
           taxPrice,
           totalPrice,
         },
@@ -71,7 +70,18 @@ function PlaceOrder() {
       dispatch({ type: 'CART_CLEAR' });
       Cookies.remove('cartItems');
       setLoading(false);
-      router.push(`/order/${data._id}`);
+
+      console.log(data);
+      if (data.paymentMethod === 'Stripe') {
+        router.push(`/order/stripe/${data._id}`);
+      } else if (data.paymentMethod === 'PayPal') {
+        router.push(`/order/paypal/${data._id}`);
+      } else if(data.paymentMethod == 'RazorPay'){
+        router.push(`/order/razorpay/${data._id}`);
+      }
+       else {
+        router.push(`/order/stripe/${data._id}`);
+      }
     } catch (err) {
       setLoading(false);
       enqueueSnackbar(getError(err), { variant: 'error' });
@@ -137,7 +147,7 @@ function PlaceOrder() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {cartItems.map((item) => (
+                      {cartItems.map(item => (
                         <TableRow key={item._id}>
                           <TableCell>
                             <NextLink href={`/product/${item.slug}`} passHref>

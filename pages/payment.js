@@ -72,6 +72,11 @@ export default function Payment() {
                   control={<Radio />}
                 ></FormControlLabel>
                 <FormControlLabel
+                  label="RazorPay"
+                  value="RazorPay"
+                  control={<Radio />}
+                ></FormControlLabel>
+                <FormControlLabel
                   label="Cash"
                   value="Cash"
                   control={<Radio />}

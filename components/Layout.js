@@ -95,7 +95,7 @@ export default function Layout({ title, description, children }) {
                 </Link>
               </NextLink>
             </Box>
-            <div>
+            <div className={classes.flexing}>
               <Switch
                 checked={darkMode}
                 onChange={darkModeChangeHandler}
@@ -114,6 +114,11 @@ export default function Layout({ title, description, children }) {
                       'Cart'
                     )}
                   </Typography>
+                </Link>
+              </NextLink>
+              <NextLink href="/product/fav" passHref>
+                <Link>
+                  <Typography component="span">Fav</Typography>
                 </Link>
               </NextLink>
               {userInfo ? (
@@ -143,7 +148,7 @@ export default function Layout({ title, description, children }) {
                     >
                       Order Hisotry
                     </MenuItem>
-                    
+
                     <MenuItem onClick={logoutClickHandler}>Logout</MenuItem>
                   </Menu>
                 </>

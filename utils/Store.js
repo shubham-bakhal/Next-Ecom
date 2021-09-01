@@ -18,6 +18,11 @@ const initialState = {
   userInfo: Cookies.get('userInfo')
     ? JSON.parse(Cookies.get('userInfo'))
     : null,
+  fav: {
+    favItems: Cookies.get('favItems')
+      ? JSON.parse(Cookies.get('favItems'))
+      : [],
+  },
 };
 
 function reducer(state, action) {
@@ -41,7 +46,7 @@ function reducer(state, action) {
     }
     case 'CART_REMOVE_ITEM': {
       const cartItems = state.cart.cartItems.filter(
-        item => item.id !== action.payload.item_id
+        item => item.id !== action.payload.item._id
       );
       Cookies.set('cartItems', JSON.stringify(cartItems));
       return { ...state, cart: { ...state.cart, cartItems } };
@@ -72,6 +77,22 @@ function reducer(state, action) {
           paymentMethod: '',
         },
       };
+    case 'FAV_ADD_ITEM': {
+      const newItem = action.payload;
+      const favItems = [...state.fav.favItems, newItem];
+      Cookies.set('favItems', JSON.stringify(favItems));
+      return { ...state, fav: { ...state.fav, favItems } };
+    }
+    case 'FAV_REMOVE_ITEM': {
+      const removeItem = action.payload;
+
+      const favItems = state.fav.favItems.filter(
+        item => item._id !== removeItem._id
+      );
+
+      Cookies.set('favItems', JSON.stringify(favItems));
+      return { ...state,fav: { ...state.fav, favItems }  };
+    }
 
     default:
       return state;

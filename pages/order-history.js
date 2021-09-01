@@ -112,7 +112,7 @@ function OrderHistory() {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {orders.map((order) => (
+                        {orders.map(order => (
                           <TableRow key={order._id}>
                             <TableCell>{order._id.substring(20, 24)}</TableCell>
                             <TableCell>{order.createdAt}</TableCell>
@@ -128,7 +128,12 @@ function OrderHistory() {
                                 : 'not delivered'}
                             </TableCell>
                             <TableCell>
-                              <NextLink href={`/order/${order._id}`} passHref>
+                              <NextLink
+                                href={`/order/${order.paymentMethod.toLowerCase()}/${
+                                  order._id
+                                }`}
+                                passHref
+                              >
                                 <Button variant="contained">Details</Button>
                               </NextLink>
                             </TableCell>

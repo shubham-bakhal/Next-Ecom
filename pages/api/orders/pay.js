@@ -10,16 +10,17 @@ const handler = nc({
 
 handler.use(isAuth);
 
-handler.post(async (req, res) => {
+handler.patch(async (req, res) => {
   await db.connect();
+  const { id, status, email } = req.body;
   const order = await Order.findById(req.query.id);
   if (order) {
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
-      id: req.body.id,
-      status: req.body.status,
-      email_address: req.body.email,
+      id: id,
+      status: status,
+      email_address: email,
     };
     const paidOrder = await order.save();
     await db.disconnect();
@@ -29,6 +30,7 @@ handler.post(async (req, res) => {
     await db.disconnect();
     res.status(404).send({ message: 'order not found' });
   }
+
 });
 
 export default handler;

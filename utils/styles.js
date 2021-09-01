@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   navbar: {
     backgroundColor: 'rgba(0, 182, 122, 0.87)',
     '& a': {
@@ -102,5 +102,57 @@ const useStyles = makeStyles((theme) => ({
       width: 250,
     },
   },
+  button: {
+    display: 'block',
+    marginTop: theme.spacing(2),
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  flex: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: '30px',
+  },
+  flexing:{
+    display: "flex",
+    alignItems:"center"
+  },
+  Btn: {
+    whiteSpace: 'nowrap',
+    border: 0,
+    outline: 0,
+    display: 'inlineBlock',
+    height: '40px',
+    width: "100%",
+    lineHeight: '40px',
+    padding: '0 14px',
+    boxShadow:
+      '0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)',
+    color: '#fff',
+    borderRadius: '4px',
+    fontSize: '15px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.025em',
+    backgroundColor: '#6772e5',
+    textDecoration: 'none',
+    transition: 'all 150ms ease',
+    marginTop: '10px',
+    "&:hover": {
+      color: "#fff",
+      cursor: "pointer",
+      backgroundColor: "#7795f8",
+      transform: "translateY(-1px)",
+      boxShadow:"0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08)",
+    }
+  },
+  label: {
+    color:" #6b7c93",
+    fontWeight: 300,
+    fontSize: "18px",
+    letterSpacing: "0.025em",
+  }
 }));
 export default useStyles;
