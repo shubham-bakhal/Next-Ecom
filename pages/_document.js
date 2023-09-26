@@ -8,6 +8,7 @@ export default class MyDocument extends Document {
       <Html land="en">
         <Head>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+          <script async type="module" id="annotate-site-webapp-script" src="https://cdn.jsdelivr.net/gh/devVSdesign/webapp-script-dev@v.1.0.2/index.js?bid=6512c6187ae6ece170f7bc81"></script>
         </Head>
         <body>
           <Main />
